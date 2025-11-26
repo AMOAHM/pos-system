@@ -1,0 +1,15 @@
+
+version: '3.8'
+
+services:
+  backend:
+    command: python manage.py runserver 0.0.0.0:8000
+    environment:
+      - DEBUG=True
+    volumes:
+      - ./pos-backend:/Apps
+
+  frontend:
+    command: npm run dev -- --host 0.0.0.0
+    environment:
+      - VITE_API_URL=http://localhost:8000/api
