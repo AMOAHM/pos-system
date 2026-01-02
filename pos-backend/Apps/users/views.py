@@ -8,10 +8,11 @@ from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.hashers import make_password, check_password
 from django.core.mail import send_mail
-from django.db import transaction
+from django.db import transaction, models
 from django.utils import timezone
 
 from rest_framework import viewsets, status
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import api_view, action, authentication_classes, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -27,6 +28,7 @@ from .serializers import (
     UserSettingsSerializer,
 )
 from .permissions import IsAdmin
+from .tokens import get_tokens_for_user
 from shops.models import Shop
 from payments.models import Subscription
 
@@ -75,7 +77,9 @@ def register_admin(request):
             password=password,
             first_name=first_name,
             last_name=last_name,
-            role='admin'
+            role='admin',
+            is_staff=True,
+            is_superuser=True
         )
         
         # Create a free trial subscription
@@ -88,6 +92,11 @@ def register_admin(request):
         )
 
     refresh = RefreshToken.for_user(user)
+    # Add role to tokens
+    refresh.access_token['role'] = user.role
+    refresh.access_token['username'] = user.username
+    refresh.access_token['email'] = user.email
+    
     return Response({
         "access": str(refresh.access_token),
         "refresh": str(refresh),
@@ -153,6 +162,11 @@ def login_view(request):
                     return Response({"error": "You do not have access to this shop"}, status=403)
 
         refresh = RefreshToken.for_user(user)
+        # Add role to tokens
+        refresh.access_token['role'] = user.role
+        refresh.access_token['username'] = user.username
+        refresh.access_token['email'] = user.email
+        
         return Response(
             {
                 "access": str(refresh.access_token),
@@ -338,16 +352,65 @@ class UserViewSet(viewsets.ModelViewSet):
         
         return queryset
 
+    def destroy(self, request, *args, **kwargs):
+        try:
+            return super().destroy(request, *args, **kwargs)
+        except PermissionDenied:
+            return Response({"detail": "Permission denied: only admin users can delete users."}, status=403)
+
     @transaction.atomic
     def perform_create(self, serializer):
         """Create user with optional shop assignments"""
         user = serializer.save()
-        
+
         # Handle shop assignments
         shop_ids = self.request.data.get('shop_ids', [])
         if shop_ids:
             shops = Shop.objects.filter(id__in=shop_ids, is_active=True)
             user.assigned_shops.set(shops)
+
+        # Optionally send credentials via email
+        send_email_flag = self.request.data.get('send_email')
+        # Accept true/"true"/"1"/1
+        should_send = False
+        if isinstance(send_email_flag, bool):
+            should_send = send_email_flag
+        elif isinstance(send_email_flag, str):
+            should_send = send_email_flag.lower() in ['true', '1', 'yes']
+        elif isinstance(send_email_flag, int):
+            should_send = send_email_flag != 0
+
+        if should_send and user.email:
+            # Determine the raw password that was provided (or default used by serializer)
+            raw_password = self.request.data.get('password')
+            if not raw_password:
+                # serializer.create sets a default when no password was provided
+                raw_password = 'temporarypassword123'
+
+            shop_list = [s.name for s in user.assigned_shops.all()]
+            frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
+            subject = "Your account has been created"
+            body_lines = [
+                f"Hello {user.first_name or user.username},",
+                "",
+                "An account has been created for you on the POS system with the following details:",
+                f"Username: {user.username}",
+                f"Password: {raw_password}",
+                f"Role: {user.role}",
+            ]
+            if shop_list:
+                body_lines.append(f"Assigned shops: {', '.join(shop_list)}")
+            body_lines.extend([
+                "",
+                f"You can log in at: {frontend_url}",
+                "Please change your password after first login.",
+            ])
+            body = "\n".join(body_lines)
+            try:
+                send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [user.email])
+            except Exception as e:
+                # Do not fail the whole request if email sending fails; log and continue
+                print(f"Failed to send user creation email to {user.email}: {e}")
 
     @transaction.atomic
     def perform_update(self, serializer):

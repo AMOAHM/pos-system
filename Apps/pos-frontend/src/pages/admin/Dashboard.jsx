@@ -38,26 +38,26 @@ import {
 function StatCard({ title, value, icon: Icon, trend, trendValue, color }) {
   const isPositive = trend === 'up';
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 hover:shadow-lg transition-shadow duration-200 border border-gray-200 dark:border-gray-700">
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
-          <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{value}</p>
+    <div className="w-full bg-white dark:bg-slate-800 rounded-lg sm:rounded-xl shadow-sm dark:shadow-lg p-3 sm:p-4 lg:p-5 hover:shadow-md dark:hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-slate-700">
+      <div className="flex items-center justify-between gap-2 sm:gap-3">
+        <div className="flex-1 min-w-0 flex flex-col gap-1">
+          <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 truncate whitespace-nowrap">{title}</p>
+          <p className="text-sm sm:text-base lg:text-lg font-bold text-gray-900 dark:text-white truncate whitespace-nowrap">{value}</p>
           {trendValue && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 whitespace-nowrap">
               {isPositive ? (
-                <ArrowUpRight className="w-3 h-3 text-green-500" />
+                <ArrowUpRight className="w-3 h-3 text-green-500 dark:text-green-400 flex-shrink-0" />
               ) : (
-                <ArrowDownRight className="w-3 h-3 text-red-500" />
+                <ArrowDownRight className="w-3 h-3 text-red-500 dark:text-red-400 flex-shrink-0" />
               )}
-              <span className={`text-xs font-semibold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+              <span className={`text-xs font-semibold truncate ${isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                 {trendValue}
               </span>
             </div>
           )}
         </div>
-        <div className={`p-3 rounded-lg ${color}`}>
-          <Icon className="w-6 h-6 text-white" />
+        <div className={`p-2 sm:p-3 rounded-lg flex-shrink-0 ${color} shadow-md dark:shadow-lg`}>
+          <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
         </div>
       </div>
     </div>
@@ -66,7 +66,7 @@ function StatCard({ title, value, icon: Icon, trend, trendValue, color }) {
 
 function ChartCard({ title, children, action, onAction }) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 border border-gray-200 dark:border-gray-700">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md dark:shadow-lg p-5 border border-gray-100 dark:border-slate-700">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-base font-semibold text-gray-900 dark:text-white">{title}</h3>
         {action && (
@@ -194,7 +194,7 @@ export default function ModernAdminDashboard() {
             <select
               value={timeRange}
               onChange={e => setTimeRange(e.target.value)}
-              className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
             >
               <option value="24h">Last 24 Hours</option>
               <option value="7d">Last 7 Days</option>
@@ -212,7 +212,7 @@ export default function ModernAdminDashboard() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
           <StatCard
             title="Total Revenue"
             value={`₵${stats.totalRevenue.toLocaleString(undefined, {

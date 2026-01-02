@@ -1,7 +1,7 @@
 // src/pages/ChangePassword.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/Authcontext';
 
 export default function ChangePassword() {
   const [currentPassword, setCurrentPassword] = useState('');

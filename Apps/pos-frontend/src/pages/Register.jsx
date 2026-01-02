@@ -1,7 +1,7 @@
 // src/pages/Register.jsx
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/Authcontext';
 import { API_BASE_URL } from '../config/constants';
 import { Eye, EyeOff, Lock, User, Mail, ShieldCheck, ArrowLeft } from 'lucide-react';
 import axios from 'axios';

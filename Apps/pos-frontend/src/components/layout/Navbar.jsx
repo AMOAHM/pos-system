@@ -62,7 +62,7 @@ export default function Navbar({ onToggleSidebar }) {
   };
 
   return (
-    <nav className="h-20 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 sticky top-0 z-50">
+    <nav className="h-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-gray-100 dark:border-slate-800 sticky top-0 z-50">
       <div className="h-full px-6 sm:px-8">
         <div className="flex justify-between items-center h-full">
           {/* Left Section: Context & Navigation */}
@@ -75,7 +75,7 @@ export default function Navbar({ onToggleSidebar }) {
             </button>
 
             <div className="hidden md:flex items-center gap-2 px-1.5 py-1.5 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
-              <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-700 rounded-xl shadow-sm border border-gray-100 dark:border-gray-600">
+              <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700">
                 <Globe className="w-4 h-4 text-indigo-500" />
                 <span className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-tighter">Live Network</span>
               </div>
@@ -141,7 +141,7 @@ export default function Navbar({ onToggleSidebar }) {
               </button>
 
               {showNotifications && (
-                <div className="absolute right-0 mt-4 w-96 bg-white dark:bg-gray-900 rounded-[2rem] shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden animate-in fade-in zoom-in duration-200">
+                <div className="absolute right-0 mt-4 w-96 bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-gray-100 dark:border-slate-800 overflow-hidden animate-in fade-in zoom-in duration-200">
                   <div className="p-6 border-b border-gray-50 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/30">
                     <h3 className="font-black text-xs uppercase tracking-widest text-gray-900 dark:text-white">Recent Activity</h3>
                     <span className="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900 text-[10px] font-black text-indigo-600 dark:text-indigo-400 rounded-md">SALES</span>

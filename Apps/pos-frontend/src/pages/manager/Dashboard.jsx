@@ -13,21 +13,21 @@ import {
 
 function StatCard({ title, value, icon: Icon, color, subtitle }) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
-          <p className="text-sm text-gray-600 dark:text-gray-400">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">
+    <div className="w-full bg-white dark:bg-slate-800 rounded-lg sm:rounded-xl shadow-sm dark:shadow-lg p-3 sm:p-4 lg:p-5 hover:shadow-md dark:hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-slate-700">
+      <div className="flex items-center justify-between gap-2 sm:gap-3">
+        <div className="flex-1 min-w-0 flex flex-col gap-1">
+          <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 truncate whitespace-nowrap">{title}</p>
+          <p className="text-sm sm:text-base lg:text-lg font-bold text-gray-900 dark:text-white truncate whitespace-nowrap">
             {value}
           </p>
           {subtitle && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-xs text-gray-500 dark:text-gray-400 truncate whitespace-nowrap">
               {subtitle}
             </p>
           )}
         </div>
-        <div className={`p-3 rounded-full ${color}`}>
-          <Icon className="w-6 h-6 text-white" />
+        <div className={`p-2 sm:p-3 rounded-lg sm:rounded-full flex-shrink-0 ${color} shadow-md dark:shadow-lg`}>
+          <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
         </div>
       </div>
     </div>
@@ -109,10 +109,10 @@ export default function ManagerDashboard() {
 
       {/* Today's Stats */}
       <div>
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+        <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-3 sm:mb-4 text-gray-900 dark:text-white">
           Today's Performance
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
           <StatCard
             title="Today's Revenue"
             value={`₵${(kpis?.today?.revenue || 0).toFixed(2)}`}
@@ -147,7 +147,7 @@ export default function ManagerDashboard() {
       {/* Performance & Suppliers Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Performance Comparison */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md dark:shadow-lg border border-gray-100 dark:border-slate-700 p-6">
           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
             Performance Comparison
           </h2>
@@ -158,7 +158,7 @@ export default function ManagerDashboard() {
                 Revenue
               </h3>
               <div className="space-y-3">
-                <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-slate-700 rounded-lg">
                   <span className="text-sm text-gray-600 dark:text-gray-400">
                     Today
                   </span>
@@ -166,7 +166,7 @@ export default function ManagerDashboard() {
                     ₵{(kpis?.today?.revenue || 0).toFixed(2)}
                   </span>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-slate-700 rounded-lg">
                   <span className="text-sm text-gray-600 dark:text-gray-400">
                     Yesterday
                   </span>
@@ -191,7 +191,7 @@ export default function ManagerDashboard() {
                 Transactions
               </h3>
               <div className="space-y-3">
-                <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-slate-700 rounded-lg">
                   <span className="text-sm text-gray-600 dark:text-gray-400">
                     Today
                   </span>
@@ -213,7 +213,7 @@ export default function ManagerDashboard() {
         </div>
 
         {/* Suppliers List */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md dark:shadow-lg border border-gray-100 dark:border-slate-700 p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
               Recent Suppliers
@@ -231,7 +231,7 @@ export default function ManagerDashboard() {
               {suppliers.slice(0, 5).map((supplier) => (
                 <div
                   key={supplier.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">

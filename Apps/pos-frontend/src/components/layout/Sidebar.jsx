@@ -1,5 +1,5 @@
 // src/components/layout/Sidebar.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { getImageUrl, generateAvatarUrl } from '../../utils/imageHelper';
@@ -13,13 +13,15 @@ import {
   Settings,
   BarChart3,
   X,
-  ChevronRight,
+  ChevronLeft,
   LogOut,
-  Infinity
+  Infinity,
+  Menu
 } from 'lucide-react';
 
 export default function Sidebar({ isOpen, onClose }) {
   const { user, isAdmin, isManager, logout } = useAuth();
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const adminLinks = [
     { to: '/admin/dashboard', icon: LayoutDashboard, label: 'Overview' },
@@ -59,104 +61,117 @@ export default function Sidebar({ isOpen, onClose }) {
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed top-0 left-0 z-[70] h-full w-80 bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 transform transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) lg:translate-x-0 lg:static flex flex-col shadow-2xl lg:shadow-none ${isOpen ? 'translate-x-0' : '-translate-x-full'
-          }`}
+        className={`fixed top-0 left-0 z-[70] h-full bg-white dark:bg-slate-900 border-r border-gray-100 dark:border-slate-800 transform transition-all duration-300 lg:static flex flex-col shadow-lg lg:shadow-none ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        } lg:translate-x-0 ${isCollapsed ? 'w-24 lg:w-24' : 'w-80 lg:w-64'}`}
       >
-        {/* Superior Branding */}
-        <div className="p-8 pb-4">
+        {/* Header with Logo */}
+        <div className={`p-6 pb-4 border-b border-gray-100 dark:border-slate-800 ${isCollapsed ? 'flex justify-center' : ''}`}>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-[1.25rem] bg-white dark:bg-gray-800 flex items-center justify-center shadow-2xl shadow-indigo-500/10 transform rotate-3 hover:rotate-0 transition-transform duration-300 border border-indigo-100 dark:border-indigo-900/50 overflow-hidden">
-                <img src="/shop-logo.png" alt="Logo" className="w-10 h-10 object-contain" />
-              </div>
-              <div>
-                <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-widest uppercase">
-                  ApexPOS
-                </h2>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">
-                    {user?.role || 'Guest'} Enterprise
-                  </p>
+            {!isCollapsed && (
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-lg">A</span>
+                </div>
+                <div>
+                  <h2 className="text-lg font-black text-gray-900 dark:text-white">ApexPOS</h2>
+                  <p className="text-xs text-gray-400 uppercase tracking-wider">Control</p>
                 </div>
               </div>
-            </div>
+            )}
+            {isCollapsed && (
+              <div className="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center shadow-lg">
+                <span className="text-white font-bold text-lg">A</span>
+              </div>
+            )}
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="hidden lg:flex p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+              title={isCollapsed ? 'Expand' : 'Collapse'}
+            >
+              {isCollapsed ? <Menu className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
+            </button>
             <button
               onClick={onClose}
-              className="lg:hidden p-2.5 rounded-2xl bg-gray-50 dark:bg-gray-800 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all"
+              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        {/* Navigation Core */}
-        <div className="flex-1 overflow-y-auto px-6 py-8 space-y-2 scrollbar-hide">
-          <p className="px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">
-            Main Management
-          </p>
+        {/* Navigation Links */}
+        <div className="flex-1 overflow-y-auto px-4 py-6 space-y-2 scrollbar-hide">
+          {!isCollapsed && (
+            <p className="px-3 text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">
+              Navigation
+            </p>
+          )}
           {links.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
               onClick={() => onClose()}
               className={({ isActive }) =>
-                `group flex items-center justify-between px-5 py-4 rounded-[1.5rem] transition-all duration-300 ${isActive
-                  ? 'bg-indigo-600 text-white shadow-2xl shadow-indigo-500/30 translate-x-1'
-                  : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-white'
+                `flex items-center justify-center lg:justify-start gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                  isActive
+                    ? 'bg-indigo-600 text-white shadow-lg'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'
                 }`
               }
+              title={isCollapsed ? link.label : ''}
             >
               {({ isActive }) => (
                 <>
-                  <div className="flex items-center gap-4">
-                    <div className={`p-2 rounded-xl transition-all duration-300 ${isActive ? 'bg-white/20' : 'bg-transparent group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/20'
-                      }`}>
-                      <link.icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400'}`} />
-                    </div>
-                    <span className="font-bold text-sm tracking-tight">{link.label}</span>
-                  </div>
-                  <ChevronRight
-                    className={`w-4 h-4 transition-all duration-300 ${isActive
-                      ? 'opacity-100 translate-x-0'
-                      : 'opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0'
-                      }`}
-                  />
+                  <link.icon className="w-5 h-5 flex-shrink-0" />
+                  {!isCollapsed && <span className="font-medium text-sm">{link.label}</span>}
                 </>
               )}
             </NavLink>
           ))}
         </div>
 
-        {/* User context footer */}
-        <div className="p-6">
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-[2rem] p-5 border border-gray-100 dark:border-gray-800">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="relative">
+        {/* Footer with User Info */}
+        <div className={`p-4 border-t border-gray-100 dark:border-slate-800 ${isCollapsed ? 'flex justify-center' : ''}`}>
+          {!isCollapsed ? (
+            <div className="bg-gray-50 dark:bg-slate-800 rounded-lg p-4">
+              <div className="flex items-center gap-3 mb-4">
                 <img
                   src={getImageUrl(user?.profile_picture) || generateAvatarUrl(user?.username || 'User')}
                   alt={user?.username}
-                  className="w-12 h-12 rounded-2xl object-cover ring-2 ring-white dark:ring-gray-800"
+                  className="w-10 h-10 rounded-lg object-cover"
                 />
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-800"></div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                    {user?.username}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider truncate">
+                    {user?.role}
+                  </p>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-black text-gray-900 dark:text-white truncate">
-                  {user?.username}
-                </p>
-                <p className="text-[10px] font-bold text-gray-400 truncate uppercase tracking-tighter">
-                  {user?.email}
-                </p>
-              </div>
+              <button
+                onClick={logout}
+                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors text-xs font-semibold"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </button>
             </div>
-            <button
+          ) : (
+            <div
+              className="relative group cursor-pointer"
               onClick={logout}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-white dark:bg-gray-800 text-red-500 font-bold text-xs border border-red-50 dark:border-red-900/20 hover:bg-red-500 hover:text-white transition-all shadow-sm"
+              title="Logout"
             >
-              <LogOut className="w-4 h-4" />
-              TERMINATE SESSION
-            </button>
-          </div>
+              <img
+                src={getImageUrl(user?.profile_picture) || generateAvatarUrl(user?.username || 'User')}
+                alt={user?.username}
+                className="w-10 h-10 rounded-lg object-cover hover:ring-2 hover:ring-red-500 transition-all"
+              />
+              <div className="absolute bottom-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></div>
+            </div>
+          )}
         </div>
       </aside>
     </>

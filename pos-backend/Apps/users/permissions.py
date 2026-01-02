@@ -3,9 +3,22 @@ from rest_framework import permissions
 
 
 class IsAdmin(permissions.BasePermission):
-    """Only admins can access"""
+    """Only admins can access - check is_superuser first, then role"""
     def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated and request.user.role == 'admin'
+        user = request.user
+        is_auth = user and user.is_authenticated
+        
+        if not is_auth:
+            return False
+        
+        # Check is_superuser first (highest privilege)
+        if getattr(user, 'is_superuser', False):
+            return True
+        
+        # Check role field
+        role = getattr(user, 'role', None)
+        is_admin = role == 'admin'
+        return is_admin
 
 
 class IsManagerOrAdmin(permissions.BasePermission):

@@ -1,6 +1,6 @@
 // src/pages/admin/Reports.jsx
 import React, { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/Authcontext';
 import { reportsAPI } from '../../api/reports';
 import { Download, Calendar, FileText } from 'lucide-react';
 
@@ -70,7 +70,7 @@ export default function AdminReports() {
         Reports
       </h1>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md dark:shadow-lg p-6 border border-gray-100 dark:border-slate-700">
         <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
           Generate Report
         </h2>
@@ -86,8 +86,9 @@ export default function AdminReports() {
                 const shop = allowedShops.find(s => s.id === parseInt(e.target.value));
                 switchShop(shop);
               }}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
+              <option value="">Select a shop</option>
               {allowedShops.map((shop) => (
                 <option key={shop.id} value={shop.id}>
                   {shop.name}
@@ -103,7 +104,7 @@ export default function AdminReports() {
             <select
               value={reportType}
               onChange={(e) => setReportType(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="sales">Sales Report</option>
               <option value="inventory">Inventory Report</option>
@@ -118,7 +119,7 @@ export default function AdminReports() {
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -130,7 +131,7 @@ export default function AdminReports() {
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -148,7 +149,7 @@ export default function AdminReports() {
 
       {reportData && (
         <>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md dark:shadow-lg p-6 border border-gray-100 dark:border-slate-700">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                 Report Summary
@@ -220,13 +221,13 @@ export default function AdminReports() {
           </div>
 
           {reportType === 'sales' && reportData.top_products?.length > 0 && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md dark:shadow-lg p-6 border border-gray-100 dark:border-slate-700">
               <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
                 Top Products
               </h3>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead className="bg-gray-50 dark:bg-gray-700">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+                  <thead className="bg-gray-50 dark:bg-slate-700">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                         Product
@@ -239,7 +240,7 @@ export default function AdminReports() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                  <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
                     {reportData.top_products.map((product, index) => (
                       <tr key={index}>
                         <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">

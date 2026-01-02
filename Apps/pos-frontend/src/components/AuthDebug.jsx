@@ -1,6 +1,6 @@
 // src/components/AuthDebug.jsx
 import { useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/Authcontext';
 
 export const AuthDebug = () => {
   const { user, isAuthenticated } = useAuth();

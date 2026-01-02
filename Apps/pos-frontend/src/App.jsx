@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider } from './contexts/Authcontext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { OfflineProvider } from './contexts/OfflineContext';
 import { CurrencyProvider } from './hooks/useCurrency';

@@ -3,6 +3,24 @@ import React, { useState, useEffect } from 'react';
 import { loyaltyAPI } from '../../api/loyalty';
 import { Gift, Star, TrendingUp, Users } from 'lucide-react';
 
+function StatCard({ title, value, icon: Icon, color }) {
+  return (
+    <div className="w-full bg-white dark:bg-slate-800 rounded-lg sm:rounded-xl shadow-sm dark:shadow-lg p-3 sm:p-4 lg:p-5 hover:shadow-md dark:hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-slate-700">
+      <div className="flex items-center justify-between gap-2 sm:gap-3">
+        <div className="flex-1 min-w-0 flex flex-col gap-1">
+          <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 truncate whitespace-nowrap">{title}</p>
+          <p className="text-sm sm:text-base lg:text-lg font-bold text-gray-900 dark:text-white truncate whitespace-nowrap">
+            {value}
+          </p>
+        </div>
+        <div className={`p-2 sm:p-3 rounded-lg sm:rounded-full flex-shrink-0 ${color} shadow-md dark:shadow-lg`}>
+          <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function LoyaltyDashboard() {
   const [customers, setCustomers] = useState([]);
   const [stats, setStats] = useState(null);
@@ -53,7 +71,7 @@ export default function LoyaltyDashboard() {
       </h1>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
         <StatCard
           title="Total Customers"
           value={stats?.total_customers || 0}
@@ -81,7 +99,7 @@ export default function LoyaltyDashboard() {
       </div>
 
       {/* Tier Distribution */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md dark:shadow-lg border border-gray-100 dark:border-slate-700 p-6">
         <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
           Tier Distribution
         </h2>
@@ -103,13 +121,13 @@ export default function LoyaltyDashboard() {
       </div>
 
       {/* Top Customers */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md dark:shadow-lg border border-gray-100 dark:border-slate-700 p-6">
         <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
           Top Customers
         </h2>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-700">
+            <thead className="bg-gray-50 dark:bg-slate-700">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Customer
@@ -128,7 +146,7 @@ export default function LoyaltyDashboard() {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
               {customers.slice(0, 10).map((customer) => (
                 <tr key={customer.id}>
                   <td className="px-6 py-4 whitespace-nowrap">

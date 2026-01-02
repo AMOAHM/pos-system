@@ -1,13 +1,17 @@
 // src/pages/admin/Shops.jsx
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { shopsAPI } from '../../api';
-import { Plus, Edit2, Trash2, MapPin, Phone, Mail } from 'lucide-react';
+import { Plus, Edit2, Trash2, MapPin, Phone, Mail, AlertCircle } from 'lucide-react';
 
 export default function AdminShops() {
+  const navigate = useNavigate();
   const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingShop, setEditingShop] = useState(null);
+  const [shopLimitError, setShopLimitError] = useState(null);
+  const [maxShops, setMaxShops] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -33,6 +37,7 @@ export default function AdminShops() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setShopLimitError(null);
 
     try {
       if (editingShop) {
@@ -53,7 +58,20 @@ export default function AdminShops() {
       loadShops();
     } catch (error) {
       console.error('Failed to save shop:', error);
-      alert('Failed to save shop. Please try again.');
+      
+      // Check if error is due to shop limit exceeded
+      if (error.response?.status === 403 && error.response?.data?.detail?.includes('subscription')) {
+        const errorMsg = error.response.data.detail;
+        // Extract max shops from error message
+        const match = errorMsg.match(/(\d+)\s+shop\(s\)/);
+        if (match) {
+          setMaxShops(parseInt(match[1]));
+        }
+        setShopLimitError(errorMsg);
+        setShowModal(false);
+      } else {
+        alert('Failed to save shop. Please try again.');
+      }
     }
   };
 
@@ -91,6 +109,33 @@ export default function AdminShops() {
 
   return (
     <div className="space-y-6">
+      {/* Shop Limit Error Alert */}
+      {shopLimitError && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-start gap-4">
+          <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h3 className="font-semibold text-red-900 dark:text-red-200 mb-1">
+              Shop Limit Exceeded
+            </h3>
+            <p className="text-sm text-red-800 dark:text-red-300 mb-3">
+              {shopLimitError}
+            </p>
+            <button
+              onClick={() => navigate('/admin/subscriptions')}
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              Upgrade Plan
+            </button>
+          </div>
+          <button
+            onClick={() => setShopLimitError(null)}
+            className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-200"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
           Shops Management
@@ -108,7 +153,7 @@ export default function AdminShops() {
         {shops.map((shop) => (
           <div
             key={shop.id}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+            className="bg-white dark:bg-slate-800 rounded-lg shadow-md dark:shadow-lg border border-gray-100 dark:border-slate-700 p-6 hover:shadow-lg dark:hover:shadow-xl transition-shadow"
           >
             <div className="flex justify-between items-start mb-4">
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
@@ -176,7 +221,7 @@ export default function AdminShops() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl dark:shadow-2xl border border-gray-100 dark:border-slate-700 p-6 max-w-md w-full">
             <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
               {editingShop ? 'Edit Shop' : 'Add New Shop'}
             </h2>
@@ -193,7 +238,7 @@ export default function AdminShops() {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                 />
               </div>
 
@@ -208,7 +253,7 @@ export default function AdminShops() {
                     setFormData({ ...formData, address: e.target.value })
                   }
                   rows="3"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                 />
               </div>
 
@@ -223,7 +268,7 @@ export default function AdminShops() {
                   onChange={(e) =>
                     setFormData({ ...formData, phone: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                 />
               </div>
 
@@ -237,7 +282,7 @@ export default function AdminShops() {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                 />
               </div>
 
@@ -255,7 +300,7 @@ export default function AdminShops() {
                       timezone: 'Africa/Accra',
                     });
                   }}
-                  className="flex-1 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="flex-1 py-2 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-900 dark:text-white"
                 >
                   Cancel
                 </button>

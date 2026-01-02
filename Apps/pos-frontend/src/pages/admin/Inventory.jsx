@@ -4,20 +4,20 @@ import { Package, AlertTriangle, XCircle, DollarSign, TrendingUp, Inbox } from '
 
 function InventoryStatCard({ title, value, subValue, icon: Icon, color, textColor }) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all duration-200">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">{title}</p>
-          <p className={`text-2xl font-black ${textColor || 'text-gray-900 dark:text-white'}`}>{value}</p>
+    <div className="w-full bg-white dark:bg-slate-800 rounded-lg sm:rounded-xl shadow-sm dark:shadow-lg p-3 sm:p-4 lg:p-5 border border-gray-100 dark:border-slate-700 hover:shadow-md dark:hover:shadow-xl transition-all duration-300">
+      <div className="flex items-center justify-between gap-2 sm:gap-3">
+        <div className="flex-1 min-w-0 flex flex-col gap-1">
+          <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider truncate whitespace-nowrap">{title}</p>
+          <p className={`text-sm sm:text-base lg:text-lg font-black truncate whitespace-nowrap ${textColor || 'text-gray-900 dark:text-white'}`}>{value}</p>
           {subValue && (
-            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
-              <TrendingUp className="w-3 h-3 text-green-500" />
-              {subValue}
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1 truncate whitespace-nowrap">
+              <TrendingUp className="w-3 h-3 text-green-500 dark:text-green-400 flex-shrink-0" />
+              <span className="truncate">{subValue}</span>
             </p>
           )}
         </div>
-        <div className={`p-3 rounded-xl ${color} bg-opacity-10 dark:bg-opacity-20`}>
-          <Icon className={`w-6 h-6 ${textColor}`} />
+        <div className={`p-2 sm:p-3 rounded-lg flex-shrink-0 ${color} bg-opacity-10 dark:bg-opacity-20 shadow-md`}>
+          <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${textColor}`} />
         </div>
       </div>
     </div>
@@ -152,7 +152,7 @@ export default function AdminInventory() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5 mb-10">
         <InventoryStatCard
           title="Total Stock Value"
           value={`₵${stats.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
@@ -191,7 +191,7 @@ export default function AdminInventory() {
       </div>
 
       {/* Filter Buttons & Search Area */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 mb-8">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6 mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div className="flex flex-wrap gap-2">
             <button
@@ -226,7 +226,7 @@ export default function AdminInventory() {
       </div>
 
       {/* Products Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-700">
             <thead>
@@ -272,7 +272,7 @@ export default function AdminInventory() {
       </div>
 
       {products.length === 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-3xl p-20 text-center mt-10 border-2 border-dashed border-gray-100 dark:border-gray-700">
+        <div className="bg-white dark:bg-slate-800 rounded-3xl p-20 text-center mt-10 border-2 border-dashed border-gray-100 dark:border-slate-700">
           <div className="mx-auto w-16 h-16 bg-gray-50 dark:bg-gray-700 rounded-2xl flex items-center justify-center mb-4">
             <Inbox className="w-8 h-8 text-gray-300" />
           </div>

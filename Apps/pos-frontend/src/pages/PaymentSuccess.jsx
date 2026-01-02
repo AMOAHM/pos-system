@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { salesAPI } from '../api';
 import { CheckCircle, XCircle, Download, ArrowLeft } from 'lucide-react';
 
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/Authcontext';
 
 export default function PaymentSuccess() {
     const [searchParams] = useSearchParams();

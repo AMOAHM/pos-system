@@ -1,10 +1,12 @@
 // src/pages/admin/Users.jsx
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../contexts/Authcontext';
 import { usersAPI, shopsAPI } from '../../api';
 import { Plus, Edit2, Trash2, User as UserIcon, X, Key, Eye, EyeOff } from 'lucide-react';
 import { getImageUrl, generateAvatarUrl } from '../../utils/imageHelper';
 
 export default function AdminUsers() {
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [users, setUsers] = useState([]);
   const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,11 +23,14 @@ export default function AdminUsers() {
     role: 'cashier',
     phone: '',
     assigned_shop_ids: [],
+    send_email: true,
   });
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (!authLoading && isAuthenticated) {
+      loadData();
+    }
+  }, [authLoading, isAuthenticated]);
 
   const loadData = async () => {
     setLoading(true);
@@ -58,9 +63,11 @@ export default function AdminUsers() {
     try {
       const submitData = {
         ...formData,
-        assigned_shops: formData.assigned_shop_ids,
+        shop_ids: formData.assigned_shop_ids,
+        send_email: formData.send_email,
       };
       delete submitData.assigned_shop_ids;
+      // keep send_email as-is
 
       // Remove password if it's empty (for updates)
       if (!submitData.password) {
@@ -105,7 +112,9 @@ export default function AdminUsers() {
       loadData();
     } catch (error) {
       console.error('Failed to delete user:', error);
-      alert('Failed to delete user');
+      const resp = error.response;
+      const msg = resp?.data?.detail || resp?.data || error.message;
+      alert('Failed to delete user: ' + (typeof msg === 'string' ? msg : JSON.stringify(msg)));
     }
   };
 
@@ -119,6 +128,7 @@ export default function AdminUsers() {
       role: 'cashier',
       phone: '',
       assigned_shop_ids: [],
+      send_email: true,
     });
     setEditingUser(null);
     setShowPassword(false);
@@ -133,10 +143,18 @@ export default function AdminUsers() {
     return colors[role] || colors.cashier;
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-red-600">Not authenticated. Please log in.</div>
       </div>
     );
   }
@@ -391,6 +409,18 @@ export default function AdminUsers() {
                 >
                   {editingUser ? 'Update' : 'Create'}
                 </button>
+              </div>
+              <div>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={formData.send_email}
+                    onChange={(e) => setFormData({ ...formData, send_email: e.target.checked })}
+                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                  />
+                  <span className="text-sm">Send credentials to user by email</span>
+                </label>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">If checked, the user will receive an email with username, password and assigned shops.</p>
               </div>
             </form>
           </div>

@@ -1,7 +1,7 @@
 // src/pages/Login.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/Authcontext';
 import { ROLES } from '../config/constants';
 import { Eye, EyeOff, Lock, User, ShieldCheck } from 'lucide-react';
 

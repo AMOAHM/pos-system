@@ -153,7 +153,7 @@ export default function AdminSettings() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Profile Settings */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md dark:shadow-lg border border-gray-100 dark:border-slate-700 p-6">
           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
             <User className="w-5 h-5" />
             Profile Settings
@@ -228,6 +228,27 @@ export default function AdminSettings() {
             </div>
 
             <div>
+              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                Shops
+              </label>
+              <div className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 dark:text-white">
+                {user?.role === 'admin' ? (
+                  <span>All Shops</span>
+                ) : Array.isArray(user?.assigned_shops) && user.assigned_shops.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {user.assigned_shops.map((s) => (
+                      <span key={s.id} className="text-sm bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded">
+                        {s.name}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-sm text-gray-500 dark:text-gray-400">No shops assigned</span>
+                )}
+              </div>
+            </div>
+
+            <div>
               <button
                 onClick={() => setShowPasswordModal(true)}
                 className="w-full px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg flex items-center justify-center gap-2"
@@ -240,7 +261,7 @@ export default function AdminSettings() {
         </div>
 
         {/* Appearance Settings */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md dark:shadow-lg border border-gray-100 dark:border-slate-700 p-6">
           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
             {darkMode ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
             Appearance
@@ -270,7 +291,7 @@ export default function AdminSettings() {
             </div>
 
             <div>
-              <label className="blocktext-sm font-medium mb-2 text-gray-700 dark:text-gray-300 flex items-center gap-2">
+              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300 flex items-center gap-2">
                 <Type className="w-4 h-4" />
                 Font Size
               </label>
@@ -293,7 +314,7 @@ export default function AdminSettings() {
             </div>
 
             <div>
-              <label className="blocktext-sm font-medium mb-2 text-gray-700 dark:text-gray-300 flex items-center gap-2">
+              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300 flex items-center gap-2">
                 <Globe className="w-4 h-4" />
                 Language
               </label>
@@ -311,7 +332,7 @@ export default function AdminSettings() {
         </div>
 
         {/* Currency Settings */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md dark:shadow-lg border border-gray-100 dark:border-slate-700 p-6">
           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
             Currency Preferences
           </h2>
@@ -346,7 +367,7 @@ export default function AdminSettings() {
         </div>
 
         {/* Notification Settings */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md dark:shadow-lg border border-gray-100 dark:border-slate-700 p-6">
           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
             Notifications
           </h2>
@@ -394,7 +415,7 @@ export default function AdminSettings() {
       {/* Password Change Modal */}
       {showPasswordModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl dark:shadow-2xl border border-gray-100 dark:border-slate-700 p-6 max-w-md w-full">
             <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
               <Lock className="w-5 h-5" />
               Change Password
