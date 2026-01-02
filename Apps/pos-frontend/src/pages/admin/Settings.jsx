@@ -3,6 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useCurrency } from '../../hooks/useCurrency';
 import { usersAPI } from '../../api';
+import { getImageUrl, generateAvatarUrl } from '../../utils/imageHelper';
 import { User, Moon, Sun, Globe, Type, Upload, Lock, Eye, EyeOff } from 'lucide-react';
 
 export default function AdminSettings() {
@@ -15,9 +16,9 @@ export default function AdminSettings() {
     dark_mode: darkMode,
   });
   const [profileImage, setProfileImage] = useState(null);
-  const [profileImagePreview, setProfileImagePreview] = useState(user?.profile_picture || null);
+  const [profileImagePreview, setProfileImagePreview] = useState(getImageUrl(user?.profile_picture) || null);
   const [saving, setSaving] = useState(false);
-  
+
   // Password change state
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordData, setPasswordData] = useState({
@@ -40,12 +41,18 @@ export default function AdminSettings() {
     });
   }, [fontSize, darkMode]);
 
+  useEffect(() => {
+    if (user?.profile_picture && !profileImage) {
+      setProfileImagePreview(getImageUrl(user.profile_picture));
+    }
+  }, [user, profileImage]);
+
   const handleSaveSettings = async () => {
     setSaving(true);
     try {
       // Apply font size
       changeFontSize(settings.font_size);
-      
+
       // Apply dark mode
       if (settings.dark_mode !== darkMode) {
         toggleDarkMode();
@@ -53,19 +60,19 @@ export default function AdminSettings() {
 
       // Save to backend
       await usersAPI.updateSettings(user.id, settings);
-      
+
       // Upload profile image if changed
       if (profileImage) {
         const formData = new FormData();
         formData.append('profile_picture', profileImage);
         await usersAPI.updateProfilePicture(user.id, formData);
-        
+
         // Update user context with new image
         if (updateUser) {
           updateUser({ ...user, profile_picture: profileImagePreview });
         }
       }
-      
+
       alert('Settings saved successfully');
     } catch (error) {
       console.error('Failed to save settings:', error);
@@ -91,7 +98,7 @@ export default function AdminSettings() {
       }
 
       setProfileImage(file);
-      
+
       // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -103,7 +110,7 @@ export default function AdminSettings() {
 
   const handlePasswordChange = async (e) => {
     e.preventDefault();
-    
+
     // Validate passwords
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       alert('New passwords do not match');
@@ -159,15 +166,15 @@ export default function AdminSettings() {
               </label>
               <div className="flex items-center gap-4">
                 <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
-                  {profileImagePreview ? (
-                    <img
-                      src={profileImagePreview}
-                      alt="Profile"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <User className="w-10 h-10 text-gray-400" />
-                  )}
+                  <img
+                    src={profileImagePreview || generateAvatarUrl(user?.username || 'User')}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = generateAvatarUrl(user?.username || 'User');
+                    }}
+                  />
                 </div>
                 <label className="cursor-pointer px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2">
                   <Upload className="w-4 h-4" />

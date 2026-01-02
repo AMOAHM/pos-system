@@ -97,6 +97,32 @@ export const authAPI = {
   },
 
   // -------------------------------------------------
+  // Password Reset
+  // -------------------------------------------------
+  forgotPassword: async (email) => {
+    try {
+      const response = await apiClient.post('/auth/forgot-password/', { email });
+      return response.data;
+    } catch (error) {
+      console.error('Forgot password failed:', error);
+      throw error;
+    }
+  },
+
+  resetPassword: async (token, newPassword) => {
+    try {
+      const response = await apiClient.post('/auth/reset-password/', {
+        token,
+        new_password: newPassword,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Reset password failed:', error);
+      throw error;
+    }
+  },
+
+  // -------------------------------------------------
   // Helper utilities
   // -------------------------------------------------
   isAuthenticated: () => !!localStorage.getItem('accessToken'),

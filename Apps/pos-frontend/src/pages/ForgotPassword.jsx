@@ -1,13 +1,14 @@
 // src/pages/ForgotPassword.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authAPI } from '../api';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -17,29 +18,16 @@ export default function ForgotPassword() {
     setLoading(true);
 
     try {
-      const response = await fetch('/auth/forgot-password/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccess('Password reset link has been sent to your email!');
-        setTimeout(() => {
-          navigate('/login');
-        }, 3000);
-      } else {
-        setError(data.error || 'Failed to send reset email');
-      }
+      await authAPI.forgotPassword(email);
+      setSuccess('Password reset link has been sent to your email!');
+      setTimeout(() => {
+        navigate('/login');
+      }, 3000);
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      setError(err.response?.data?.error || 'Failed to send reset email');
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (

@@ -1,6 +1,7 @@
 // src/components/layout/OfflineIndicator.jsx
 import React from 'react';
 import { useOffline } from '../../contexts/OfflineContext';
+
 import { WifiOff, Wifi, RefreshCw } from 'lucide-react';
 
 export default function OfflineIndicator() {

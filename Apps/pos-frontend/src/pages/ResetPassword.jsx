@@ -1,6 +1,7 @@
 // src/pages/ResetPassword.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { authAPI } from '../api';
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
@@ -10,7 +11,7 @@ export default function ResetPassword() {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [token, setToken] = useState('');
-  
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,32 +42,16 @@ export default function ResetPassword() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/reset-password/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          token,
-          new_password: newPassword 
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccess('Password reset successfully! Redirecting to login...');
-        setTimeout(() => {
-          navigate('/login');
-        }, 2000);
-      } else {
-        setError(data.error || 'Failed to reset password');
-      }
+      await authAPI.resetPassword(token, newPassword);
+      setSuccess('Password reset successfully! Redirecting to login...');
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      setError(err.response?.data?.error || 'Failed to reset password');
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (

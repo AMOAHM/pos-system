@@ -7,7 +7,6 @@ import { OfflineProvider } from './contexts/OfflineContext';
 import { CurrencyProvider } from './hooks/useCurrency';
 import Layout from './components/layout/Layout';
 import ProtectedRoute from './components/layout/ProtectedRoute';
-import OfflineIndicator from './components/layout/OfflineIndicator';
 import Login from './pages/Login';
 import ChangePassword from './pages/ChangePassword';
 import ForgotPassword from './pages/ForgotPassword';
@@ -139,8 +138,7 @@ function App() {
                   <Route path="*" element={<Navigate to="/login" replace />} />
                 </Routes>
 
-                {/* Offline Indicator */}
-                <OfflineIndicator />
+
               </CurrencyProvider>
             </OfflineProvider>
           </AuthProvider>

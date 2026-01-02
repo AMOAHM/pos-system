@@ -1,7 +1,7 @@
 // src/pages/admin/Users.jsx
 import React, { useState, useEffect } from 'react';
 import { usersAPI, shopsAPI } from '../../api';
-import { Plus, Edit2, Trash2, User as UserIcon, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, User as UserIcon, X, Key, Eye, EyeOff } from 'lucide-react';
 import { getImageUrl, generateAvatarUrl } from '../../utils/imageHelper';
 
 export default function AdminUsers() {
@@ -11,6 +11,7 @@ export default function AdminUsers() {
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [selectedShopId, setSelectedShopId] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -42,6 +43,16 @@ export default function AdminUsers() {
     }
   };
 
+  const generatePassword = () => {
+    const length = 12;
+    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+    let password = '';
+    for (let i = 0; i < length; i++) {
+      password += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    setFormData({ ...formData, password });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -50,6 +61,11 @@ export default function AdminUsers() {
         assigned_shops: formData.assigned_shop_ids,
       };
       delete submitData.assigned_shop_ids;
+
+      // Remove password if it's empty (for updates)
+      if (!submitData.password) {
+        delete submitData.password;
+      }
 
       if (editingUser) {
         await usersAPI.update(editingUser.id, submitData);
@@ -105,6 +121,7 @@ export default function AdminUsers() {
       assigned_shop_ids: [],
     });
     setEditingUser(null);
+    setShowPassword(false);
   };
 
   const getRoleBadgeColor = (role) => {
@@ -258,14 +275,40 @@ export default function AdminUsers() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">Password {editingUser ? '(optional)' : '*'}</label>
-                  <input
-                    type="password"
-                    required={!editingUser}
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white"
-                    placeholder={editingUser ? 'Leave blank to keep current' : ''}
-                  />
+                  <div className="flex gap-2">
+                    <div className="flex-1 relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        required={!editingUser}
+                        value={formData.password}
+                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                        className="w-full px-3 py-2 pr-10 border rounded-lg dark:bg-gray-700 dark:text-white"
+                        placeholder={editingUser ? 'Leave blank to keep current' : ''}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                        title={showPassword ? "Hide password" : "Show password"}
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={generatePassword}
+                      className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center gap-1 whitespace-nowrap"
+                      title="Generate secure password"
+                    >
+                      <Key className="w-4 h-4" />
+                      Generate
+                    </button>
+                  </div>
+                  {formData.password && (
+                    <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                      Password set ({formData.password.length} characters)
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">Phone</label>
@@ -290,6 +333,49 @@ export default function AdminUsers() {
                   <option value="admin">Admin</option>
                 </select>
               </div>
+
+              {/* Assign Shops - Show only for non-admin roles */}
+              {formData.role !== 'admin' && (
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
+                    Assign Shops
+                  </label>
+                  <div className="border rounded-lg p-3 max-h-48 overflow-y-auto dark:bg-gray-700 dark:border-gray-600">
+                    {shops.length > 0 ? (
+                      <div className="space-y-2">
+                        {shops.map((shop) => (
+                          <label key={shop.id} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 p-2 rounded">
+                            <input
+                              type="checkbox"
+                              checked={formData.assigned_shop_ids.includes(shop.id)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setFormData({
+                                    ...formData,
+                                    assigned_shop_ids: [...formData.assigned_shop_ids, shop.id]
+                                  });
+                                } else {
+                                  setFormData({
+                                    ...formData,
+                                    assigned_shop_ids: formData.assigned_shop_ids.filter(id => id !== shop.id)
+                                  });
+                                }
+                              }}
+                              className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                            />
+                            <span className="text-sm text-gray-900 dark:text-white">{shop.name}</span>
+                          </label>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500 dark:text-gray-400">No shops available</p>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Select one or more shops to assign to this user
+                  </p>
+                </div>
+              )}
 
               <div className="flex gap-3 pt-4">
                 <button

@@ -2,6 +2,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { getImageUrl, generateAvatarUrl } from '../../utils/imageHelper';
 import {
   LayoutDashboard,
   Store,
@@ -55,9 +56,8 @@ export default function Sidebar({ isOpen, onClose }) {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-16 left-0 z-50 h-[calc(100vh-4rem)] w-72 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:top-0 lg:h-full shadow-xl lg:shadow-none ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed top-16 left-0 z-50 h-[calc(100vh-4rem)] w-72 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:top-0 lg:h-full shadow-xl lg:shadow-none ${isOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         {/* Sidebar Header - Mobile Only */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 lg:hidden">
@@ -102,29 +102,26 @@ export default function Sidebar({ isOpen, onClose }) {
               to={link.to}
               onClick={() => onClose()}
               className={({ isActive }) =>
-                `group flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-200 ${
-                  isActive
-                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/50 scale-[1.02]'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:scale-[1.01]'
+                `group flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-200 ${isActive
+                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/50 scale-[1.02]'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:scale-[1.01]'
                 }`
               }
             >
               {({ isActive }) => (
                 <>
                   <div className="flex items-center gap-3">
-                    <link.icon 
-                      className={`w-5 h-5 transition-transform duration-200 ${
-                        isActive ? 'scale-110' : 'group-hover:scale-110'
-                      }`} 
+                    <link.icon
+                      className={`w-5 h-5 transition-transform duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-110'
+                        }`}
                     />
                     <span className="font-medium text-sm">{link.label}</span>
                   </div>
-                  <ChevronRight 
-                    className={`w-4 h-4 transition-all duration-200 ${
-                      isActive 
-                        ? 'opacity-100 translate-x-0' 
+                  <ChevronRight
+                    className={`w-4 h-4 transition-all duration-200 ${isActive
+                        ? 'opacity-100 translate-x-0'
                         : 'opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0'
-                    }`} 
+                      }`}
                   />
                 </>
               )}
@@ -135,19 +132,15 @@ export default function Sidebar({ isOpen, onClose }) {
         {/* Sidebar Footer */}
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700/50">
-            {user?.profile_picture ? (
-              <img
-                src={user.profile_picture}
-                alt={user.username}
-                className="w-10 h-10 rounded-full object-cover ring-2 ring-blue-500"
-              />
-            ) : (
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-                <span className="text-white font-semibold text-sm">
-                  {user?.username?.charAt(0).toUpperCase()}
-                </span>
-              </div>
-            )}
+            <img
+              src={getImageUrl(user?.profile_picture) || generateAvatarUrl(user?.username || 'User')}
+              alt={user?.username}
+              className="w-10 h-10 rounded-full object-cover ring-2 ring-blue-500"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = generateAvatarUrl(user?.username || 'User');
+              }}
+            />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
                 {user?.username}

@@ -5,7 +5,7 @@ import { reportsAPI } from '../../api/reports';
 import { Download, Calendar, FileText } from 'lucide-react';
 
 export default function AdminReports() {
-  const { selectedShop } = useAuth();
+  const { selectedShop, allowedShops, switchShop } = useAuth();
   const [reportType, setReportType] = useState('sales');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -76,6 +76,26 @@ export default function AdminReports() {
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+              Shop
+            </label>
+            <select
+              value={selectedShop?.id || ''}
+              onChange={(e) => {
+                const shop = allowedShops.find(s => s.id === parseInt(e.target.value));
+                switchShop(shop);
+              }}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+            >
+              {allowedShops.map((shop) => (
+                <option key={shop.id} value={shop.id}>
+                  {shop.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div>
             <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
               Report Type

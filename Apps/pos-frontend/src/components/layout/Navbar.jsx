@@ -2,6 +2,7 @@
 import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { getImageUrl, generateAvatarUrl } from '../../utils/imageHelper';
 import { Menu, Sun, Moon, LogOut, Store, Bell } from 'lucide-react';
 
 export default function Navbar({ onToggleSidebar }) {
@@ -21,7 +22,7 @@ export default function Navbar({ onToggleSidebar }) {
             >
               <Menu className="w-5 h-5 text-gray-600 dark:text-gray-300" />
             </button>
-            
+
             {/* Logo & Title */}
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
@@ -93,19 +94,15 @@ export default function Navbar({ onToggleSidebar }) {
 
             {/* User info - Desktop */}
             <div className="hidden lg:flex items-center gap-3 px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600">
-              {user?.profile_picture ? (
-                <img
-                  src={user.profile_picture}
-                  alt={user.username}
-                  className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-500"
-                />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-                  <span className="text-white font-semibold text-xs">
-                    {user?.username?.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-              )}
+              <img
+                src={getImageUrl(user?.profile_picture) || generateAvatarUrl(user?.username || 'User')}
+                alt={user?.username}
+                className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-500"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = generateAvatarUrl(user?.username || 'User');
+                }}
+              />
               <div className="text-right">
                 <p className="text-sm font-semibold text-gray-900 dark:text-white">
                   {user?.username}
