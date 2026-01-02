@@ -28,6 +28,7 @@ from .serializers import (
 )
 from .permissions import IsAdmin
 from shops.models import Shop
+from payments.models import Subscription
 
 User = get_user_model()
 
@@ -42,6 +43,57 @@ def generate_verification_code():
 def generate_reset_token():
     """Generate a secure alphanumeric reset token"""
     return "".join(random.choices(string.ascii_letters + string.digits, k=64))
+
+# ============================================================
+# Registration API
+# ============================================================
+
+@api_view(["POST"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def register_admin(request):
+    """Register a new Admin user and start a free trial."""
+    username = request.data.get("username")
+    email = request.data.get("email")
+    password = request.data.get("password")
+    first_name = request.data.get("first_name", "")
+    last_name = request.data.get("last_name", "")
+
+    if not all([username, email, password]):
+        return Response({"error": "Username, email and password are required"}, status=400)
+
+    if User.objects.filter(username=username).exists():
+        return Response({"error": "Username already taken"}, status=400)
+    
+    if User.objects.filter(email=email).exists():
+        return Response({"error": "Email already registered"}, status=400)
+
+    with transaction.atomic():
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+            role='admin'
+        )
+        
+        # Create a free trial subscription
+        Subscription.objects.create(
+            user=user,
+            plan=Subscription.PLAN_TRIAL,
+            trial_ends_at=timezone.now() + timedelta(days=7),
+            is_active=True,
+            amount=0
+        )
+
+    refresh = RefreshToken.for_user(user)
+    return Response({
+        "access": str(refresh.access_token),
+        "refresh": str(refresh),
+        "user": UserSerializer(user).data,
+        "message": "Admin registered successfully with 7-day free trial."
+    }, status=201)
 
 # ============================================================
 # Login API
@@ -81,7 +133,8 @@ def login_view(request):
 
         # Determine allowed shops
         if user.role == "admin":
-            allowed_shops = Shop.objects.filter(is_active=True)
+            # ONLY SHOW SHOPS CREATED BY THIS ADMIN
+            allowed_shops = Shop.objects.filter(created_by=user, is_active=True)
         else:
             allowed_shops = user.assigned_shops.filter(is_active=True)
             if not allowed_shops.exists():
@@ -255,23 +308,32 @@ class UserViewSet(viewsets.ModelViewSet):
         return [IsAuthenticated()]
 
     def get_queryset(self):
-        """Filter users based on role"""
-        queryset = User.objects.all().prefetch_related('assigned_shops')
+        """Filter users based on role and ownership"""
+        user = self.request.user
+        
+        if user.role == 'admin':
+            # Admin can see themselves and anyone assigned to their shops
+            my_shop_ids = Shop.objects.filter(created_by=user).values_list('id', flat=True)
+            queryset = User.objects.filter(
+                models.Q(id=user.id) | models.Q(assigned_shops__id__in=my_shop_ids)
+            ).distinct().prefetch_related('assigned_shops')
+        else:
+            # Non-admins can only see themselves (or managers seeing their staff - simplified for now)
+            queryset = User.objects.filter(id=user.id).prefetch_related('assigned_shops')
         
         # Optionally filter by role
         role = self.request.query_params.get('role')
         if role:
             queryset = queryset.filter(role=role)
         
-        # Search by username, email, or full_name
+        # Search by username, email, or full_name (assuming full_name exists, but it doesn't in models.py, let's fix that)
         search = self.request.query_params.get('search')
         if search:
             queryset = queryset.filter(
-                username__icontains=search
-            ) | queryset.filter(
-                email__icontains=search
-            ) | queryset.filter(
-                full_name__icontains=search
+                models.Q(username__icontains=search) | 
+                models.Q(email__icontains=search) |
+                models.Q(first_name__icontains=search) |
+                models.Q(last_name__icontains=search)
             )
         
         return queryset

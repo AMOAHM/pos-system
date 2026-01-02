@@ -8,6 +8,7 @@ import { CurrencyProvider } from './hooks/useCurrency';
 import Layout from './components/layout/Layout';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import ChangePassword from './pages/ChangePassword';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
@@ -21,6 +22,8 @@ import AdminInventory from './pages/admin/Inventory';
 import AdminUsers from './pages/admin/Users';
 import AdminReports from './pages/admin/Reports';
 import AdminSettings from './pages/admin/Settings';
+import AdminSubscriptions from './pages/admin/Subscriptions';
+import AdminSubscriptionManage from './pages/admin/SubscriptionManage';
 import AdminAnalytics from './pages/admin/Analytics';
 import AdminLoyalty from './pages/admin/Loyalty';
 import AdminShifts from './pages/admin/Shifts';
@@ -62,6 +65,7 @@ function App() {
                 <Routes>
                   {/* Public Routes */}
                   <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
                   <Route path="/forgot-password" element={<ForgotPassword />} />
                   <Route path="/reset-password" element={<ResetPassword />} />
                   <Route path="/payment-success" element={<PaymentSuccess />} />
@@ -93,6 +97,8 @@ function App() {
                     <Route path="suppliers" element={<AdminSuppliers />} /> {/* ADD THIS */}
                     <Route path="reports" element={<AdminReports />} />
                     <Route path="settings" element={<AdminSettings />} />
+                    <Route path="subscriptions" element={<AdminSubscriptions />} />
+                    <Route path="subscriptions/manage" element={<AdminSubscriptionManage />} />
                     <Route path="analytics" element={<AdminAnalytics />} />
                     <Route path="loyalty" element={<AdminLoyalty />} />
                     <Route path="shifts" element={<AdminShifts />} />
@@ -113,6 +119,7 @@ function App() {
                     <Route path="inventory" element={<ManagerInventory />} />
                     <Route path="suppliers" element={<ManagerSuppliers />} /> {/* ADD THIS */}
                     <Route path="settings" element={<ManagerSettings />} />
+                    <Route path="subscriptions" element={<ManagerDashboard />} />
                     <Route path="analytics" element={<ManagerAnalytics />} />
                     <Route path="shifts" element={<ManagerShifts />} />
                   </Route>

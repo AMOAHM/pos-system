@@ -8,17 +8,20 @@ export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900 overflow-hidden">
-      {/* Fixed Navbar */}
-      <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-      
-      {/* Main content area with sidebar */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Fixed Sidebar */}
-        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        
+    <div
+      className="h-screen flex bg-gray-950 overflow-hidden font-sans selection:bg-indigo-100 selection:text-indigo-900 bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: 'url("/login_background.png")' }}
+    >
+      {/* Sidebar - Always visible on desktop, toggleable on mobile */}
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      {/* Main content area with Glassmorphism Overlay */}
+      <div className="flex-1 flex flex-col min-w-0 relative bg-white/5 dark:bg-black/20 backdrop-blur-2xl">
+        {/* Fixed Navbar */}
+        <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+
         {/* Scrollable Main Content */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto scrollbar-hide">
           <div className="p-4 sm:p-6 lg:p-8">
             <Outlet />
           </div>

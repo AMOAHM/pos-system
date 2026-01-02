@@ -1,5 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { productsAPI } from '../../api';
+import { Package, AlertTriangle, XCircle, DollarSign, TrendingUp, Inbox } from 'lucide-react';
+
+function InventoryStatCard({ title, value, subValue, icon: Icon, color, textColor }) {
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all duration-200">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">{title}</p>
+          <p className={`text-2xl font-black ${textColor || 'text-gray-900 dark:text-white'}`}>{value}</p>
+          {subValue && (
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
+              <TrendingUp className="w-3 h-3 text-green-500" />
+              {subValue}
+            </p>
+          )}
+        </div>
+        <div className={`p-3 rounded-xl ${color} bg-opacity-10 dark:bg-opacity-20`}>
+          <Icon className={`w-6 h-6 ${textColor}`} />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function AdminInventory() {
   const [selectedShop, setSelectedShop] = useState(null);
@@ -7,8 +30,10 @@ export default function AdminInventory() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [stats, setStats] = useState({
-    total: 0,
+    totalSku: 0,
+    totalItems: 0,
     lowStock: 0,
+    lowStockValue: 0,
     outOfStock: 0,
     totalValue: 0
   });
@@ -41,7 +66,6 @@ export default function AdminInventory() {
     try {
       const params = {};
 
-      // Only add shop param for non-admin users with a shop selected
       if (selectedShop?.id) {
         params.shop = selectedShop.id;
       }
@@ -70,15 +94,29 @@ export default function AdminInventory() {
 
   const calculateStats = (productsData) => {
     const newStats = productsData.reduce((acc, product) => {
-      acc.total++;
-      if (product.current_stock === 0) {
+      const stock = parseInt(product.current_stock || 0);
+      const price = parseFloat(product.unit_price || 0);
+      const value = stock * price;
+
+      acc.totalSku++;
+      acc.totalItems += stock;
+      acc.totalValue += value;
+
+      if (stock === 0) {
         acc.outOfStock++;
-      } else if (product.current_stock <= product.reorder_level) {
+      } else if (stock <= product.reorder_level) {
         acc.lowStock++;
+        acc.lowStockValue += value;
       }
-      acc.totalValue += product.current_stock * parseFloat(product.unit_price || 0);
       return acc;
-    }, { total: 0, lowStock: 0, outOfStock: 0, totalValue: 0 });
+    }, {
+      totalSku: 0,
+      totalItems: 0,
+      lowStock: 0,
+      lowStockValue: 0,
+      outOfStock: 0,
+      totalValue: 0
+    });
 
     setStats(newStats);
   };
@@ -95,114 +133,135 @@ export default function AdminInventory() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8">
-      <div className="mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Inventory Management
-        </h1>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Monitor and manage your stock levels
-        </p>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-700">
-          <p className="text-sm text-gray-600 dark:text-gray-400">Total Products</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.total}</p>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-700">
-          <p className="text-sm text-gray-600 dark:text-gray-400">Low Stock</p>
-          <p className="text-2xl font-bold text-orange-600 dark:text-orange-400 mt-1">{stats.lowStock}</p>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-700">
-          <p className="text-sm text-gray-600 dark:text-gray-400">Out of Stock</p>
-          <p className="text-2xl font-bold text-red-600 dark:text-red-400 mt-1">{stats.outOfStock}</p>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-700">
-          <p className="text-sm text-gray-600 dark:text-gray-400">Total Value</p>
-          <p className="text-2xl font-bold text-green-600 dark:text-green-400 mt-1">
-            GH₵{stats.totalValue.toFixed(2)}
+    <div className="min-h-screen bg-transparent p-4 sm:p-6 lg:p-8">
+      <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+            Inventory Central
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">
+            Real-time tracking and financial overview of your stock
           </p>
         </div>
       </div>
 
-      {/* Filter Buttons */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-6">
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setFilter('all')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'all'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-              }`}
-          >
-            All Products ({stats.total})
-          </button>
-          <button
-            onClick={() => setFilter('low_stock')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'low_stock'
-                ? 'bg-orange-600 text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-              }`}
-          >
-            Low Stock ({stats.lowStock})
-          </button>
-          <button
-            onClick={() => setFilter('out_of_stock')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'out_of_stock'
-                ? 'bg-red-600 text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-              }`}
-          >
-            Out of Stock ({stats.outOfStock})
-          </button>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-10">
+        <InventoryStatCard
+          title="Total Stock Value"
+          value={`₵${stats.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          subValue={`${stats.totalItems.toLocaleString()} units available`}
+          icon={DollarSign}
+          color="bg-green-500"
+          textColor="text-green-600 dark:text-green-400"
+        />
+
+        <InventoryStatCard
+          title="Total Products (SKUs)"
+          value={stats.totalSku}
+          subValue="Across all categories"
+          icon={Package}
+          color="bg-blue-500"
+          textColor="text-blue-600 dark:text-blue-400"
+        />
+
+        <InventoryStatCard
+          title="Low Stock Warning"
+          value={stats.lowStock}
+          subValue={`Value: ₵${stats.lowStockValue.toLocaleString()}`}
+          icon={AlertTriangle}
+          color="bg-orange-500"
+          textColor="text-orange-600 dark:text-orange-400"
+        />
+
+        <InventoryStatCard
+          title="Out of Stock"
+          value={stats.outOfStock}
+          subValue="Immediate restock needed"
+          icon={XCircle}
+          color="bg-red-500"
+          textColor="text-red-600 dark:text-red-400"
+        />
+      </div>
+
+      {/* Filter Buttons & Search Area */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setFilter('all')}
+              className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${filter === 'all'
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-blue-900/20'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200'
+                }`}
+            >
+              All Products
+            </button>
+            <button
+              onClick={() => setFilter('low_stock')}
+              className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${filter === 'low_stock'
+                ? 'bg-orange-600 text-white shadow-lg shadow-orange-200 dark:shadow-orange-900/20'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200'
+                }`}
+            >
+              Low Stock Alerts
+            </button>
+            <button
+              onClick={() => setFilter('out_of_stock')}
+              className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${filter === 'out_of_stock'
+                ? 'bg-red-600 text-white shadow-lg shadow-red-200 dark:shadow-red-900/20'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200'
+                }`}
+            >
+              Out of Stock
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Products Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-700">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Product</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">SKU</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Stock</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Reorder</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Value</th>
+          <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-700">
+            <thead>
+              <tr className="bg-gray-50/50 dark:bg-gray-700/50">
+                <th className="px-8 py-5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Product Details</th>
+                <th className="px-8 py-5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">SKU Identifier</th>
+                <th className="px-8 py-5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest text-center">Current Stock</th>
+                <th className="px-8 py-5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Health Status</th>
+                <th className="px-8 py-5 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Inventory Value</th>
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {products.map((product) => {
                 const status = getStockStatus(product);
                 return (
-                  <tr key={product.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                    <td className="px-6 py-4">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">{product.name}</div>
+                  <tr key={product.id} className="hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors">
+                    <td className="px-8 py-6">
+                      <div className="text-sm font-bold text-gray-900 dark:text-white">{product.name}</div>
+                      <div className="text-xs text-gray-400 mt-0.5">{product.category_name || 'Uncategorized'}</div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{product.sku}</td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm font-bold text-gray-900 dark:text-white">{product.current_stock}</div>
+                    <td className="px-8 py-6 text-sm font-medium text-gray-500 dark:text-gray-400">{product.sku}</td>
+                    <td className="px-8 py-6">
+                      <div className="text-sm font-black text-gray-900 dark:text-white text-center">{product.current_stock}</div>
+                      <div className="text-[10px] text-gray-400 text-center uppercase tracking-tighter">Min: {product.reorder_level}</div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{product.reorder_level}</td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${status.bg} ${status.color}`}>
+                    <td className="px-8 py-6">
+                      <span className={`inline-flex px-3 py-1.5 text-[10px] font-black uppercase rounded-lg ${status.bg} ${status.color}`}>
                         {status.label}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
-                      GH₵{(product.current_stock * parseFloat(product.unit_price || 0)).toFixed(2)}
+                    <td className="px-8 py-6 text-right">
+                      <div className="text-sm font-black text-gray-900 dark:text-white">
+                        ₵{(product.current_stock * parseFloat(product.unit_price || 0)).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      </div>
+                      <div className="text-xs text-gray-400 mt-0.5">@ ₵{parseFloat(product.unit_price || 0).toFixed(2)} / unit</div>
                     </td>
                   </tr>
                 );
@@ -213,10 +272,13 @@ export default function AdminInventory() {
       </div>
 
       {products.length === 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-12 text-center mt-6">
-          <h3 className="text-sm font-medium text-gray-900 dark:text-white">No products found</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            {filter !== 'all' ? `No products match the "${filter.replace('_', ' ')}" filter.` : 'No products available.'}
+        <div className="bg-white dark:bg-gray-800 rounded-3xl p-20 text-center mt-10 border-2 border-dashed border-gray-100 dark:border-gray-700">
+          <div className="mx-auto w-16 h-16 bg-gray-50 dark:bg-gray-700 rounded-2xl flex items-center justify-center mb-4">
+            <Inbox className="w-8 h-8 text-gray-300" />
+          </div>
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white">Clean as a whistle!</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-sm mx-auto">
+            {filter !== 'all' ? `No products currently match the ${filter.replace('_', ' ')} alert category.` : "You haven't added any products to your inventory yet."}
           </p>
         </div>
       )}

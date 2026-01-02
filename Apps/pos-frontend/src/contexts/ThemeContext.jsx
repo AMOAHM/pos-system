@@ -4,37 +4,39 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const ThemeContext = createContext(null);
 
 export const ThemeProvider = ({ children }) => {
-  const [darkMode, setDarkMode] = useState(false);
-  const [fontSize, setFontSize] = useState('medium');
+  const [darkMode, setDarkMode] = useState(() => {
+    // Lazy initialization to check local storage or system preference
+    const saved = localStorage.getItem('darkMode');
+    if (saved !== null) {
+      return saved === 'true';
+    }
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+
+  const [fontSize, setFontSize] = useState(() => {
+    return localStorage.getItem('fontSize') || 'medium';
+  });
 
   useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
-    const savedFontSize = localStorage.getItem('fontSize') || 'medium';
-
-    setDarkMode(savedDarkMode);
-    setFontSize(savedFontSize);
-
-    // Apply dark mode class
-    if (savedDarkMode) {
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
-
-  const toggleDarkMode = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    localStorage.setItem('darkMode', newMode);
-
-    if (newMode) {
+    // Sync class with state
+    if (darkMode) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
+    localStorage.setItem('darkMode', darkMode);
+  }, [darkMode]);
+
+  useEffect(() => {
+    localStorage.setItem('fontSize', fontSize);
+  }, [fontSize]);
+
+  const toggleDarkMode = () => {
+    setDarkMode(prev => !prev);
   };
 
   const changeFontSize = (size) => {
     setFontSize(size);
-    localStorage.setItem('fontSize', size);
   };
 
   return (

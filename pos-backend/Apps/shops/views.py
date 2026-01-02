@@ -23,7 +23,7 @@ class ShopViewSet(viewsets.ModelViewSet):
         user = self.request.user
         
         if user.role == 'admin':
-            return Shop.objects.all()
+            return Shop.objects.filter(created_by=user)
         else:
             return user.assigned_shops.all()
     
@@ -34,7 +34,28 @@ class ShopViewSet(viewsets.ModelViewSet):
         return [IsAuthenticated()]
     
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        user = self.request.user
+        
+        try:
+            from payments.models import Subscription
+        except ImportError:
+            Subscription = None
+
+        if not Subscription:
+            # Fallback if payments app is not integrated correctly
+            serializer.save(created_by=user)
+            return
+
+        # Check subscription limit
+        limit = Subscription.get_shop_limit(user)
+        current_count = Shop.objects.filter(created_by=user).count()
+        
+        if current_count >= limit:
+            from rest_framework.exceptions import PermissionDenied
+            plan_name = "Trial" # Simplified
+            raise PermissionDenied(f"Your current plan allows only {limit} shop(s). Please upgrade your subscription.")
+
+        serializer.save(created_by=user)
     
     @action(detail=True, methods=['get'])
     def kpis(self, request, pk=None):
